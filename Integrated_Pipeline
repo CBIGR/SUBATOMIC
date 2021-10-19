@@ -1,0 +1,199 @@
+import os
+#configfile: "config_test_drosophila.yaml"
+configfile: "config_test_hsapiens_miniNet.yaml"
+
+interaction_file = config["interaction"]          # file containing all the interactions
+species = config["species"]                       # name of the species
+motif_type = config["motif_type"]                 # file containing the motif type (input file for ISMA)
+Scripts = config["scripts"]                       # relative or absolute path to the folder containing all the scripts
+Func_Descr = config["Functional_Description"]     # file containing the functional description of the genes (input file ProcessSCHypeOUTPUT)
+TF = config["Transcription_Factors"]              # file containing a list of the TFs in the dataset
+miRNA = config["miRNA"]                           # file containing a list of the miRNAs in the dataset
+GO_ASSOCIATIONS = config["GO_ASSOCIATIONS"]       # file containing the GO associations
+schype_pvalue = config["schype_pvalue"]           # p_value for SCHype
+goatools_pvalue = config["goatools_pvalue"]       # p_value cutoff for goatools
+call_R = config["call_R"]                         # call of R
+annotation = config["annotation_background"]        # Sets annotation background for gene enrichment
+superview_background = config["superview_background"] # set background for permutation test in the superview
+
+directed_interactions = "_".join(config["directed_interactions"])       # specifies the letters indicating directed egde interactions
+undirected_interactions = "_".join(config["undirected_interactions"])   # specifies the letters indicating undirected edge interactions
+miRNA_interactions = "_".join(config["miRNA_interactions"])           # specifies the letters indicating undirected edge interactions
+homolog_interactions = "_".join(config["homolog_interactions"])        # specifies the letters indicating undirected edge interactions
+cores = int(config["cores"])
+runs     = [str(x) for x in range(0, cores)]
+runs_con = "_".join(runs)
+
+interactions = set(["I", "M", "TF"])    # maybe this needs adaptation after I understod where it is used
+modules = "_".join(config["modules"])               # specifies what module types should be analysed
+
+new_logs = species+"/Logs/"
+print(new_logs)
+
+with open(f"{interaction_file}", "r") as int_file:
+    for line in int_file:
+        line = line.rstrip()
+        id1, id2, interaction = line.split("\t")
+        interactions.add(interaction)
+        if interaction in directed_interactions:
+            interactions.add(interaction.lower())
+
+SV_files = []
+for module in modules:
+    for interaction in interactions:
+        SV_files.append(f"SuperView_{interaction}_{module}")
+
+# section to prepare the folder for parallelisation
+if not os.path.exists(f'{species}/parallel'):
+    os.makedirs(f'{species}/parallel')
+for i in runs:
+    if not os.path.exists(f'{species}/parallel/'+i+'.txt'):
+        open(f'{species}/parallel/'+i+'.txt', 'w').close()
+
+rule all:
+    input:
+        new_logs+"process_SCHYPE_done.txt",
+        #expand("{species}/Improved_Superview/{file}.Scored.txt", species=species, file=SV_files),
+        #expand("{species}/GOATOOLS/SCHype{module}", species=species, module=["ALL", "COR", "COP", "COM", "FBU", "FB2U", "FFL"])
+        #new_logs+"Super_View_done.txt"
+        #"{species}/Super_View_done/{runs}.txt"
+        #expand("{species}/Super_View_done/{file}.txt", species=species, file=runs),
+        #new_logs+"Super_View_RF_done.txt"
+        #new_logs+"Enrichment_Collector_done.txt"
+        new_logs+"Cytoscape_style_done.txt"
+        
+    shell:
+        "echo Pipeline run completed"
+
+
+rule split_interactions:
+    input:
+        interaction_file
+    output:
+        new_logs+"split_interactions_done.txt"
+    shell:
+        "python {Scripts}/Split_Interactions.py {interaction_file} {species} {undirected_interactions} {directed_interactions}"
+
+
+rule two_node_subgraph:
+    input:
+        new_logs+"split_interactions_done.txt"
+    output:
+        expand("{species}/2nodemotifs/{direction}2nodemotifs.txt", direction=["DD", "DU"], species=species)
+    shell:
+        "python {Scripts}/Find2nodemotif.py {species}/Interactions {species}/2nodemotifs {directed_interactions} {undirected_interactions}"
+
+
+rule three_node_subgraph:
+    input:
+        new_logs+"split_interactions_done.txt"
+    output:
+        new_logs+"ISMA_done.txt"
+    shell:
+        "python {Scripts}/runISMAGS.py -s {species} -i Scripts/ISMAGS/ismags-1.1.3-with-dependencies.jar -m {motif_type} -f {species}/Interactions/ -o {species}/3nodemotifs"
+
+
+rule parse_ISMAGS_output:
+    input:
+        new_logs+"ISMA_done.txt"
+    output:
+        new_logs+"ISMAGS_ISMA_PARSE_done.txt"
+    shell:
+        "python {Scripts}/parse_output_ISMAGS_to_ISMA.py -f {species}/3nodemotifs/ -s {species}"
+ 
+     
+rule SCHYPE:
+    input:
+        expand("{species}/2nodemotifs/{direction}2nodemotifs.txt", direction=["DD", "DU"], species=species),
+        new_logs+"ISMAGS_ISMA_PARSE_done.txt"
+    output:
+        new_logs+"SCHYPE_done.txt"
+    shell:
+        "python {Scripts}/prepSCHype.py {species} {schype_pvalue} {directed_interactions} {undirected_interactions} {Scripts}/SCHYPE/SCHype.jar"
+
+
+rule process_SCHYPE:
+    input:
+        new_logs+"SCHYPE_done.txt"
+	#new_logs+"ALLEDGES_done.txt"
+    output:
+        new_logs+"process_SCHYPE_done.txt"
+    shell:
+        "python {Scripts}/ProcessSCHypeOUTPUT.py {species}/SCHYPE {species} {schype_pvalue} {Func_Descr} {TF} {Scripts}/ClusteringCoefficient.R -miRNA {miRNA} -m {miRNA_interactions} -hom {homolog_interactions} -R {call_R} -di {directed_interactions} -ui {undirected_interactions}"
+
+
+rule ALLEDGES:
+    input:
+        new_logs+"SCHYPE_done.txt"
+    output:
+        new_logs+"ALLEDGES_done.txt"
+    shell:
+        "python {Scripts}/ALLEDGES.py {species}"
+
+rule parallel:
+    input:
+        new_logs+"ALLEDGES_done.txt"
+        #new_logs+"process_SCHYPE_done.txt"
+    output:
+        new_logs+"parallel_done.txt"
+    shell:
+        "python {Scripts}/parallel_binning.py {species} {homolog_interactions} {cores} {modules}"
+
+
+
+rule Super_View:
+    input:
+        "{species}/parallel/{runs}.txt",
+        new_logs+"parallel_done.txt"        
+    output:
+        new_logs+"Super_View_{species}_{runs}_done.txt",
+        #all = expand("{run}", run = runs)
+        #"{species}/Super_View_done/{runs}.txt"
+        
+    shell:
+        "python {Scripts}/new_superview.py -folder {species} -hom {homolog_interactions} -mode module -run {input[0]} -groups {modules} -background {superview_background} -interactions {interaction_file}"
+
+rule Super_View_Collector:
+    input:
+        expand(new_logs+"Super_View_{species}_{runs}_done.txt", species=species, runs=runs)        
+    output:
+        new_logs+"Super_View_Collector_done.txt",
+    shell:
+        "python {Scripts}/new_superview_collector.py -folder {species} -groups module -run {runs_con}"
+
+
+rule Super_View_RF:
+    input:
+        new_logs+"Super_View_Collector_done.txt",       
+    output:
+        new_logs+"Super_View_RF_done.txt",
+    shell:
+        "python {Scripts}/new_superview_RF.py -folder {species} -hom {homolog_interactions} -mode rf -groups {modules} -RF {TF} -miRNA {miRNA}"
+
+
+rule functional_enrichment:
+    input:
+        new_logs+"Super_View_RF_done.txt",
+        "{species}/parallel/{runs}.txt"
+    output:
+        new_logs+"Enrichment_{species}_{runs}_done.txt"
+    shell:
+        "python {Scripts}/Goatools_module.py -s {species} -t {modules} -m {species}/SCHYPE -o {species}/GOATOOLS/ -g {GO_ASSOCIATIONS} --run {input[1]} -a {annotation} -i {interaction_file} -p {goatools_pvalue}"
+
+rule functional_enrichment_collector:
+    input:
+        expand(new_logs+"Enrichment_{species}_{runs}_done.txt", species=species, runs=runs) 
+    output:
+        new_logs+"Enrichment_Collector_done.txt"
+    shell:
+        "python {Scripts}/goatools_collector.py -folder {species} -groups {modules} -runs {runs_con}"
+
+rule create_cytoscape_style:
+    input:
+        new_logs+"Enrichment_Collector_done.txt"
+    output:
+        new_logs+"Cytoscape_style_done.txt"
+    shell:
+        "python Scripts/create_cytoscape_style.py -folder {species} -cytoscape Scripts/standard_cytoscape_style.xml -di {directed_interactions} -ui {undirected_interactions}"
+
+
