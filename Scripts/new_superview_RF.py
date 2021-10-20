@@ -54,7 +54,6 @@ def readParallelSplit(path):
     
     for line in lines:
         tmp = line.split('_')
-        #print(tmp)
         if len(tmp) > 1:
             if tmp[0] in modules:
                 modules[tmp[0]][tmp[1]] = ''
@@ -128,7 +127,6 @@ def loadModules(Folder, Groups, minSize, maxSize, hom, merge):
             deletarray.append(Cl)
 
     # delete small/big cluster
-    #print(SCHypeGroup + " deleted by sizefilter >= "+str(minSize)+" <= "+str(maxSize)+": " + str(len(deletarray)))
     for ElementToDelete in deletarray:
         del NewNodes[ElementToDelete]
 
@@ -156,7 +154,6 @@ def loadModules(Folder, Groups, minSize, maxSize, hom, merge):
             deletarray.append(Cl)
 
     # delete homologs
-    #print(SCHypeGroup + " deleted by homolog filter: " + str(len(deletarray)))
     for ElementToDelete in deletarray:
         if ElementToDelete in NewNodes.keys():
             del NewNodes[ElementToDelete]
@@ -187,11 +184,9 @@ def loadModules(Folder, Groups, minSize, maxSize, hom, merge):
     
 
     if merge == True:
-        #print(SCHypeGroup + " detected and merged clusters with >50% overlap: " + str(len(deletarray)))
         for ElementToDelete in deletarray:
             del NewNodes[ElementToDelete]
     else:
-        #print(SCHypeGroup + " detected but not merged clusters with >50% overlap: " + str(len(deletarray)))
         u=0
 
     GenesToClusters = {}  # per gene in which cluster they occur
@@ -297,8 +292,6 @@ def makeSuperview(group, interaction_dict, all_new_nodes, all_gene_to_clusters, 
                     string.append(round(count[c]/len(cluster2),4)*100)
                 string.append(len(all_counts))
                 string.append(round(len(all_counts)/len(cluster2),4)*100)
-                #print(group,group2, i,k, len(cluster1), len(cluster2))
-                #print(count)
                 outfile.write("\t".join([str(item) for item in string])+'\n')
                 all_interactions.append(string)
 

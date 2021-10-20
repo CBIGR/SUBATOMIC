@@ -39,9 +39,6 @@ if __name__ == '__main__':
     # load split for parallelization
     runs = args.runs.split('_')
 
-    #print(runs)
-    
-
     # groups to run against
     groups = args.groups.split('_')
     
@@ -62,7 +59,6 @@ if __name__ == '__main__':
         except:
             continue
         lines  = infile.read().split('\n')
-        #print(lines)
         header = lines[0]
     
         for line in lines[1:]:
@@ -72,7 +68,6 @@ if __name__ == '__main__':
                     store[tmp[0]] = [line]
                 else:
                     store[tmp[0]].append(line)
-        #print(store)
                                
     for key in store:
         outfile = open(args.folder+'/Superview/'+key+'.csv', 'w')

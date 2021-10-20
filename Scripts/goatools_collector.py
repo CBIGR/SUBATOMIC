@@ -58,30 +58,12 @@ if __name__ == '__main__':
     for group in groups:
         #/home/jloers/repo/composite_subgraph_cluster_integration/Celegans/GOATOOLS/SCHypeCIR
         path = args.folder+'/GOATOOLS/SCHype'+group
-        #print(path, os.path.isfile(path))
-        #exit()
-        #if os.path.isfile(path) == False:
-        #    continue
-         
-        ## calculate superview
-        #name = run.replace("\\","/").split('/')[-1]
-        #path = args.folder+'/Superview/'+name
-        
-        #infile = open(path, 'r')
-        #lines  = infile.read().split('\n')
-        #print(lines)
-        
-
        
         try:
             onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
         except:
             continue
         
-        #print(onlyfiles)
-        #exit()
-        # for file in folder:
-        #print(onlyfiles)
 
         # read content from every single file and store it properly in a list
         
@@ -105,7 +87,6 @@ if __name__ == '__main__':
                 if len(tmp) > 1:
                     try:
                         log2fold = round(math.log((float(tmp[4].split('/')[0])/float(tmp[4].split('/')[1]))/(float(tmp[5].split('/')[0])/float(tmp[5].split('/')[1]))+1,2),3)
-                        print(log2fold)
                     except:
                         log2fold = NA
                     content_storage.append([group, rID, str(pvalues[float(tmp[9])]), str(log2fold)]+tmp)

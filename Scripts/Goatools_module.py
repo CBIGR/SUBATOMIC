@@ -147,7 +147,6 @@ def runGOATOOLS(params, motif_type, modules, go_associations, rID, loadType, p_v
 
         goatools_run = f'python3 Scripts/Goatools_find_enrichment.py {species}/goatools-main/data/module_textfile/SCHype{motif_type}/module_{str(module)}.txt {species}/goatools-main/data/new_{loadType}_{rID}.nodes.txt {go_associations} --pval='+str(p_value)+f' --method=fdr_bh --pval_field=fdr_bh --outfile={params["species"]}/GOATOOLS/SCHype{motif_type}/{str(module)}.txt'
 
-        # print(goatools_run)
 
         # execution of command line
         subprocess.run(goatools_run, shell=True)
@@ -163,7 +162,6 @@ def readParallelSplit(path):
     
     for line in lines:
         tmp = line.split('_')
-        #print(tmp)
         if len(tmp) > 1:
             if tmp[0] in modules:
                 modules[tmp[0]][tmp[1]] = ''

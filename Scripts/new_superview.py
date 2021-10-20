@@ -40,7 +40,6 @@ def readParallelSplit(path):
     
     for line in lines:
         tmp = line.split('_')
-        print(tmp)
         if len(tmp) > 1:
             if tmp[0] in modules:
                 modules[tmp[0]][tmp[1]] = ''
@@ -142,7 +141,6 @@ def loadModules(Folder, Groups, minSize, maxSize, hom, merge):
             deletarray.append(Cl)
 
     # delete homologs
-    #print(SCHypeGroup + " deleted by homolog filter: " + str(len(deletarray)))
     for ElementToDelete in deletarray:
         if ElementToDelete in NewNodes.keys():
             del NewNodes[ElementToDelete]
@@ -177,7 +175,6 @@ def loadModules(Folder, Groups, minSize, maxSize, hom, merge):
         for ElementToDelete in deletarray:
             del NewNodes[ElementToDelete]
     else:
-        #print(SCHypeGroup + " detected but not merged clusters with >50% overlap: " + str(len(deletarray)))
         i = 0
 
     GenesToClusters = {}  # per gene in which cluster they occur
@@ -331,12 +328,11 @@ def makeSuperview(group, interaction_dict, all_new_nodes, all_gene_to_clusters, 
                         if pair in interaction_dict[n]:
                             count[n] += 1
                             count['all'] += 1
-                #print(group,group2, i,k, len(cluster1), len(cluster2))
-                #print(count)
+)
 
                 # From here, one can calculate the improved superview
                 string = [group, i,len(cluster1), group2, k,len(cluster2)]
-                #print(count)
+
                 for n in network_files:
                     #string.append(n)
                     marker = n+'_'+group+'_'+str(len(cluster1))+'_'+group2+'_'+str(len(cluster2))
@@ -389,15 +385,14 @@ def makeSuperview(group, interaction_dict, all_new_nodes, all_gene_to_clusters, 
                                             set1 =  random.sample(pool[n].keys(),len(cluster1))
                                             set2 =  random.sample(pool[n].keys(),len(cluster2))
                                         else:
-                                            #print("Warning: insufficient sampling pool exist for "+ n+'_'+group+i+'_'+group2+k+'. P-value set to 1')
-                                          #print(len(cluster1), len(pool[n]), len(cluster2), len(pool[n]))
+
                                             set1 = []
                                             set2 = []
                                             warning = True
                                     else:
                                         set1 = []
                                         set2 = []
-                                #print(distribution)         
+        
                                 rand_pairs = makePairs(set1, set2)
                                 interaction_counter = 0
                                 for pair in rand_pairs:

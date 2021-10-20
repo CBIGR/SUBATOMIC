@@ -1,6 +1,5 @@
 """
 Created on 2020. 11. 2.
-@author: hayoung kim
 @author: jens loers
 """
 
@@ -76,11 +75,9 @@ def makeInteractionFileSyntax(folder):
 
     # get all files names in the input folder
     onlyfiles = [f for f in listdir(folder) if isfile(join(folder, f))]
-    #print(onlyfiles)
-   # print(folder)
+
     # create the right syntax for ISMAs linkfile input
     for name in onlyfiles:
-        print(name)
         sp, interaction, direction = name.split("_")
         direction = direction.split(".")[0]
         files[interaction.upper()] = interaction.upper() + " " + direction + " a a " + name
@@ -99,7 +96,7 @@ def runISMA(param, motifs, syntax):
     # go through every single motifs:
     for motif in motifs:
         # link_files are the files that need to be loaded to calculate the motifs
-        print(syntax)
+        #print(syntax)
         #link_files = '"' + syntax[motif[0]] + " " + syntax[motif[1]] + " " + syntax[motif[2]] + '"'
 
         # select only files for motifs
@@ -121,8 +118,8 @@ def runISMA(param, motifs, syntax):
                    f'-output {param["out"]}/{motif}-{R}.txt'
 
         # execution of command line
-        print(isma_run)
-        system(isma_run)
+        #print(isma_run)
+        #system(isma_run)
         R += 1
     #exit()
 
@@ -142,7 +139,7 @@ if __name__ == '__main__':
     # load motif files
     motifs = loadMotifFIle(param["motifs"])
     # make interaction file sythax
-    print(param["folder"])
+    #print(param["folder"])
     syntax = makeInteractionFileSyntax(param["folder"])
     # run ISMA
     runISMA(param, motifs, syntax)

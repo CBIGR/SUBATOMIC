@@ -52,7 +52,7 @@ for SCHypeGroup in Groups:
                     index=False, mode='w')
     print(SCHypeGroup, 'Finished')
 
-print(sys.argv)
+#print(sys.argv)
 try:
     os.mkdir(sys.argv[1]+"/Logs")
 except FileExistsError:

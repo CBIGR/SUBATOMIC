@@ -56,7 +56,6 @@ def loadModules(Folder, Groups, minSize, maxSize, hom, merge):
             deletarray.append(Cl)
 
     # delete small/big cluster
-    #print(SCHypeGroup + " deleted by sizefilter >= "+str(minSize)+" <= "+str(maxSize)+": " + str(len(deletarray)))
     for ElementToDelete in deletarray:
         del NewNodes[ElementToDelete]
 
@@ -84,7 +83,6 @@ def loadModules(Folder, Groups, minSize, maxSize, hom, merge):
             deletarray.append(Cl)
 
     # delete homologs
-    #print(SCHypeGroup + " deleted by homolog filter: " + str(len(deletarray)))
     for ElementToDelete in deletarray:
         if ElementToDelete in NewNodes.keys():
             del NewNodes[ElementToDelete]

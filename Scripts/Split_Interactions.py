@@ -19,8 +19,6 @@ except FileExistsError:
 #ui = ['P', 'H', 'G']                    # Contains all undirected interactions
 #di = ['D', 'd', 'R', 'r', 'M', 'm']     # Contains all directed interactions
 
-#print(ui)
-#print(di)
 
 with open(file, 'r') as f:
     for line in f:

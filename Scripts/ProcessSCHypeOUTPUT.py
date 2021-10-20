@@ -30,11 +30,6 @@ def motif_to_edges(edges, subgraph, di, ui):
     edges_in = edges.split('\t')
     cluster = edges_in[0]
 
-    #if cluster == "71":
-    #    print(edges)
-    #    print(subgraph)
-    #    print(di, ui)
-
     # First edge
     if '-' not in subgraph[0]:
         if subgraph[0].isupper():               # Test if uppercase
@@ -76,16 +71,7 @@ def motif_to_edges(edges, subgraph, di, ui):
                 edges_out.append(f'{edges_in[2]}\t{letter}\t{edges_in[3]}')
             else:                               # Lower case revert edges
                 edges_out.append(f'{edges_in[3]}\t{letter.upper()}\t{edges_in[2]}')
-    #if cluster == "71":    
-    #    print("Before dubrem", edges_out)
-    # Remove duplicates in undirected edges
-    #print(di, ui)
-    #for edge in edges_out:
-    #    edge_one, interaction, edge_two = edge.split('\t')
-    #    if interaction in ui:
-    #        edge_one = sorted([edge_one, edge_two])[0]
-    #        edge_two = sorted([edge_one, edge_two])[1]
-    #    edges_out_n.append(f'{edge_one}\t{interaction}\t{edge_two}')
+
 
     return cluster, list(set(edges_out))
 
@@ -342,9 +328,6 @@ def three_node_subgraph(edges, node_3_type_hash, line, sif, nnf, eda, clusters, 
    
     # Sub input line return list with clusters and list with edges
     cluster, edges_out = motif_to_edges(line, merged_motif, di, ui)
-    #print(cluster, type(cluster))
-    if cluster == "71":
-        print("Output", edges_out)
         
     for edge in edges_out:
         # Write the edges to appropriate lists in right format
@@ -421,13 +404,10 @@ def cluster_size_attributes(cluster_genes, tf_type, gene_go):
         Keys: Cluster;
         Values: cluster size.
     """
-    #print(cluster_genes)
-    #print(tf_type)
+
     cluster_size, cluster_attributes = {}, {}
     for cluster in cluster_genes:
         genes = cluster_genes[cluster]
-        #print("Genes")
-        #print(genes)
         cluster_size[cluster] = len(genes)
         go_count = 0
         tf_count = 0
@@ -490,9 +470,6 @@ def nnf_file(folder, group, clusters, nnf, hom):
     mi_networks = []
     if hom != None:
         hm_networks = hom.split('_')
-#    print(len(sorted(list(set(clusters)))))
-#    print(len(sorted(list(set(nnf)))))
-#    print(sorted(list(set(clusters))))
 
     lists = {}
     with open(f'{folder}/{group}/edges.nnf', 'w') as f:
@@ -514,8 +491,6 @@ def nnf_file(folder, group, clusters, nnf, hom):
                 if cluster not in hom_value:
                     hom_value[cluster] = 0
                 hom_value[cluster] += 1
-#    print(len(lists))
-#    print(lists.keys())
 
     return edge_value, hom_value
 

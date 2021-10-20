@@ -68,7 +68,7 @@ if __name__ == '__main__':
     param   = parseArguments(argv)
     species = param["folder"] 
     # start parsing
-    parser(param["species"])
+    parser(param["species"]+'/3nodemotifs')
 
     with open(f'{param["species"]}/Logs/ISMAGS_ISMA_PARSE_done.txt', 'w+') as f:
         f.write("ISMAGS_ISMA_PARSE_done done!")

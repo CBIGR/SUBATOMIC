@@ -5,15 +5,18 @@ import os
 import numpy as np
 import random
 from scipy import stats
+from scipy.stats import norm
 
 def arg_parse():
     """
     Parses the arguments given in the command line
     """
-    parser = argparse.ArgumentParser(description='Calculates ECD scores per module given the right expression data.')
+    parser = argparse.ArgumentParser(description='Calculates ECD scores, nPCC and biological activity per module given a set of expression data or a list of p-values from differential expression.')
     parser.add_argument('-expression', help='Path + name of expression file')
+    parser.add_argument('-pvalues', help='Path + name of file containing differentialy expressed pvalues')
     parser.add_argument('-meta', help='Path + name meta data table')
-    parser.add_argument('-clusters', help='Path to the SCHYPE output folder (containing SCHypeALL, SCHypeCIR etc.')    
+    parser.add_argument('-clusters', help='Path to the SCHYPE output folder (containing SCHypeALL, SCHypeCIR etc.')
+    parser.add_argument('-mode', help='Choice between ECD, nPCC, and activity')    
     parser.add_argument('-out', help='Path to the folder to store results')
 
     return parser.parse_args()
@@ -89,7 +92,29 @@ def loadExpression(path):
         if len(tmp) > 1:
             genes[tmp[0]] = tmp[1:]
 
-    return header, genes 
+    return header, genes
+
+def loadPvalues(path):
+    """
+    Load p-values from differential expression file per gene
+    """
+
+    infile = open(path, 'r')
+    lines  = infile.read().split('\n')
+
+    pvalues  = {}
+
+    for line in lines[1:]:
+        tmp = line.split('\t')
+        if len(tmp) > 1:
+            if tmp[0] not in pvalues:
+                pvalues[tmp[0]] = float(tmp[1])
+            else:
+                if pvalues[tmp[0]] < float(tmp[1]):
+                    pvalues[tmp[0]] = float(tmp[1])
+        
+
+    return pvalues
          
 def loadModules(path):
     """
@@ -166,18 +191,11 @@ def ECDscore(outfolder, experiments, case, control, header, genes, modules, inte
     if os.path.isdir(outfolder+'/ECD') == False:
         os.mkdir(outfolder+'/ECD')
 
-    print(random.choices(list(interactions.keys()), k=2))
-
-    
-    #exit()
-
-    # create random pool
-#    pool = pooling(modules)
     random_data = {}
     for i in range(5, 51):
         distribution_sum = []
         distribution_avg = []
-        for j in range(0,10):
+        for j in range(0,50):
             sample = random.choices(list(interactions.keys()), k=i)
             module_genes = make_artifical_module(sample, i)
             #print(module_genes)
@@ -188,7 +206,7 @@ def ECDscore(outfolder, experiments, case, control, header, genes, modules, inte
                     g1 = module_genes[gene1]
                     g2 = module_genes[gene2]
                     #print('i')
-                   # check if genes are in                         
+                   # check if genes have an interaction                       
                     if g1+'_'+g2 in interactions and g1 in genes and g2 in genes:
                             #print('in')
                         g1_exp_case = [genes[g1][t] for t in range(0,len(header)) if header[t] in case]
@@ -216,12 +234,6 @@ def ECDscore(outfolder, experiments, case, control, header, genes, modules, inte
             distribution_sum.append(np.sum(module_dPCC))
             distribution_avg.append(np.mean(module_dPCC))
             random_data[i] = distribution_avg
-        #print(distribution_avg)
-        #print(np.nanmean(distribution_avg), np.nanstd(distribution_avg))
-        #exit()
-
-
-
 
 
     # iterate through the modules
@@ -293,16 +305,11 @@ def ECDscore(outfolder, experiments, case, control, header, genes, modules, inte
                                 module_dPCC.append(dPCC)
 
 
-            #print(condition, np.sum(module_dPCC), np.mean(module_dPCC))
-        #print(experiment, condition, np.sum(module_dPCC), np.mean(module_dPCC))
-        #print(len(module_genes))
-        z_score = ( np.mean(module_dPCC) - np.mean(random_data[len(module_genes)]) ) / np.std(random_data[len(module_genes)])+0.001
-        p_value = 1- stats.norm.cdf(abs(z_score))
-        #print(z_score)
-        print(module, experiment, condition, len(module_genes), np.sum(module_dPCC), np.mean(module_dPCC), z_score, p_value)
-            #exit()         
-            #    print(module, len(module_genes), condition, len(case), len(control), len(module_genes), sum(module_dPCC))        
-            #exit()
+
+                z_score = ( np.mean(module_dPCC) - np.mean(random_data[len(module_genes)]) ) / np.std(random_data[len(module_genes)])+0.001
+                p_value = 1- stats.norm.cdf(abs(z_score))
+                print(module, experiment, condition, len(module_genes), np.sum(module_dPCC), np.mean(module_dPCC), z_score, p_value)
+
                               
 
                 
@@ -320,10 +327,11 @@ def nPCC(outfolder, header, genes, modules):
     # sampling pool
     pool = pooling(modules)
     
+    cc= 0
     random_modules = {}
     for i in range(5, 51):
         distribution = []
-        for j in range(0,50):
+        for j in range(0,100):
             sample = random.sample(pool,j)
             PCC_values       = []
             counter          = 1
@@ -343,6 +351,8 @@ def nPCC(outfolder, header, genes, modules):
                             print("Warning")
             if len(PCC_values) > 0:
                 distribution.append(np.mean(PCC_values))
+            print(round((cc/4500.0)*100, 2),"%",end="\r")
+            cc += 1
         #print(distribution)
         #print(i, np.mean(distribution),  np.std(distribution))
         random_modules[i] = [np.mean(distribution), np.std(distribution)]  
@@ -381,14 +391,73 @@ def nPCC(outfolder, header, genes, modules):
         #exit()                        
 
         #print(module_genes)      
-                           
+
+def calculateActivity(modules, pvalues, outfolder):
+    """
+    Calculate the biological activity of a particular subnetwork per module based on Ideker et al 2002
+    """
+
+    # create random sets of genes with certain size
+    pool = pooling(modules)
+    random_modules = {}
+    for i in range(5, 51):
+        distribution = []
+
+        for j in range(0,100):
+            sample = random.sample(pool,j)
+            module_zi        = []
+            for gene in sample:
+                if gene in pvalues:    
+                    pval = float(pvalues[gene])
+                    zi   = norm.ppf((1-pval)+0.000000000000001)
+                    module_zi.append(zi)
+            
+                
+            if len(module_zi) > 0:        
+                za =  (1/(len(module_zi))**0.5)*sum(module_zi)
+                #za =  (1/(len(module_zi)))*sum(module_zi)
+                distribution.append(za)
+        random_modules[i] = [np.mean(distribution), np.std(distribution)]
+
+    for i in random_modules:
+        print(i, random_modules[i])
+
+
+    # create Folder to store 
+    if os.path.isdir(outfolder+'/moduleActivity/') == False:
+        os.mkdir(outfolder+'/moduleActivity/')
+
+    outfile = open(outfolder+'/moduleActivity/activity.csv', 'w')
+    outfile.write("module_type\tmodule_no\tfull_name\tmodule_length\tz_score\tsubnet_score\n")
+
+    for module in modules:
+        module_genes     = modules[module]
+        module_zi        = []
+        if len(module_genes) <5 or len(module_genes) > 50:
+            continue    
+
+        for gene in module_genes:
+            if gene in pvalues:
+                pval = float(pvalues[gene])
+                zi   = norm.ppf((1-pval)+0.000000000000001)
+                module_zi.append(zi)
+                
+        if len(module_zi) > 0:        
+            za =  (1/(len(module_zi))**0.5)*sum(module_zi)
+            #za =  (1/(len(module_zi)))*sum(module_zi)
+            # correct za
+            sa = (za-random_modules[len(module)][0])/random_modules[len(module)][1]
+            outfile.write(module.split('_')[0]+'\t'+module.split('_')[1]+'\t'+module+'\t'+str(len(module_genes))+'\t'+str(za)+'\t'+str(sa)+'\n')
+        else:
+            za =  0    
+        #print(za)
+        
 
 if __name__ == '__main__':
     """
     Generates a list of preferable non-redundant motifs for a set of directed and a set of undirected edges
     First argument: 
     """    
-    
     # load arugments
     args = arg_parse()
 
@@ -404,9 +473,15 @@ if __name__ == '__main__':
     # load all pairwise interactions appearing in the modules
     interactions = loadInteractions(args.clusters)
 
-    # calculate nPCC score   
-    #nPCC(args.out, header, genes, modules)
+    # load p-values of DE analysis
+    pvalues = loadPvalues(args.pvalues)
 
+    # calculate nPCC score   
+    nPCC(args.out, header, genes, modules)
+    #print(experiments)
     # calculate ECD score
-    ECDscore(args.out, experiments, case, control, header, genes, modules, interactions)
+    #ECDscore(args.out, experiments, case, control, header, genes, modules, interactions)
+
+    # calcuate module activity
+    #calculateActivity(modules, pvalues, args.out)
     
