@@ -78,8 +78,12 @@ def makeInteractionFileSyntax(folder):
 
     # create the right syntax for ISMAs linkfile input
     for name in onlyfiles:
-        sp, interaction, direction = name.split("_")
-        direction = direction.split(".")[0]
+        #sp, interaction, direction 
+        names        = name.split("_")
+        sp           = names[-1]
+        interaction  = names[-2]
+        direction    = names[-3]
+        direction    = direction.split(".")[0]
         files[interaction.upper()] = interaction.upper() + " " + direction + " a a " + name
         files[interaction.lower()] = interaction.lower() + " " + direction + " a a " + name
 
