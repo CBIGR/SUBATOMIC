@@ -90,7 +90,7 @@ rule three_node_subgraph:
     output:
         new_logs+"ISMA_done.txt"
     shell:
-        "python {Scripts}/runISMAGS.py -s {species} -i Scripts/ISMAGS/ismags-1.1.3-with-dependencies.jar -m {motif_type} -f {species}/Interactions/ -o {species}/3nodemotifs"
+        "python {Scripts}/runISMAGS.py -s {species} -i {Scripts}/ISMAGS/ismags-1.1.3-with-dependencies.jar -m {motif_type} -f {species}/Interactions/ -o {species}/3nodemotifs"
 
 
 rule parse_ISMAGS_output:
@@ -178,7 +178,7 @@ rule functional_enrichment:
     output:
         new_logs+"Enrichment_{species}_{runs}_done.txt"
     shell:
-        "python {Scripts}/Goatools_module.py -s {species} -t {modules} -m {species}/SCHYPE -o {species}/GOATOOLS/ -g {GO_ASSOCIATIONS} --run {input[1]} -a {annotation} -i {interaction_file} -p {goatools_pvalue}"
+        "python {Scripts}/Goatools_module.py -f {Scripts} -s {species} -t {modules} -m {species}/SCHYPE -o {species}/GOATOOLS/ -g {GO_ASSOCIATIONS} --run {input[1]} -a {annotation} -i {interaction_file} -p {goatools_pvalue}"
 
 rule functional_enrichment_collector:
     input:
@@ -194,6 +194,6 @@ rule create_cytoscape_style:
     output:
         new_logs+"Cytoscape_style_done.txt"
     shell:
-        "python Scripts/create_cytoscape_style.py -folder {species} -cytoscape Scripts/standard_cytoscape_style.xml -di {directed_interactions} -ui {undirected_interactions}"
+        "python {Scripts}/create_cytoscape_style.py -folder {species} -cytoscape {Scripts}/standard_cytoscape_style.xml -di {directed_interactions} -ui {undirected_interactions}"
 
 

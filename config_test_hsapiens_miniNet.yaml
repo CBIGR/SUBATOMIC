@@ -1,15 +1,15 @@
 # This config file needs to be adapted for each run. It needs to be located in the folder
 # of the snakefile Integrated_Pipeline
 # set path for the user input
-interaction:              "example_data/Hsapiens_M1/Human_Interation_File.csv"
-motif_type:               "example_data/Hsapiens_M1/Hsapens_motifs.csv"
-Functional_Description:   "example_data/Hsapiens_M1/Human_functional_description.csv"
+interaction:              "example_data/Hsapiens_M1/Hsapiens_miniNet_S10.csv"
+motif_type:               "example_data/Hsapiens_M1/Hsapiens_subgraphs.csv"
+Functional_Description:   "example_data/Hsapiens_M1/Human_functional_description_with_type.csv"
 Transcription_Factors:    "example_data/Hsapiens_M1/Human_TFs.csv"
 GO_ASSOCIATIONS:          "example_data/Hsapiens_M1/goa_human.gaf"
 miRNA:                    "example_data/Hsapiens_M1/Human_miRNAS.csv"
 #
 # set internal script path
-scripts:                  "Scripts" 
+scripts:                  "scripts" 
 #
 # configure settings for the run
 species:                  "Hsapiens"
