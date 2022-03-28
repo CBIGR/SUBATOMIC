@@ -140,7 +140,7 @@ test the pipeline using only a  small amount of time. However, we also provide t
 ```tar -xzf Hsapiens_goa_ensembl.gaf.tar.gz```
 4. Adapt the config file. For this example, all parameters are set and the example is run on 3 cores
 5. Go to the SUBATOMIC folder and run
-```snakemake -s Integrated_Pipeline --configfile config_test_hsapiens_miniNet.yaml --cores 3```
+```snakemake -s Integrated_Pipeline --configfile config_test_hsapiens_toyNet.yaml --cores 3```
 In case you want to rerun the entire pipeline, you need to delete the ```Logs``` 
 file in the run folder as well as the hidden .snakemake folder 
 6. Investigate the results
