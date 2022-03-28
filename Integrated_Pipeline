@@ -1,6 +1,6 @@
 import os
 #configfile: "config_test_drosophila.yaml"
-configfile: "config_test_hsapiens_miniNet.yaml"
+#configfile: "config_test_hsapiens_miniNet.yaml"
 
 interaction_file = config["interaction"]          # file containing all the interactions
 species = config["species"]                       # name of the species

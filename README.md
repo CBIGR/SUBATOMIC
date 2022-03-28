@@ -10,7 +10,7 @@ categorized according to their type (ALL, COM, COR, COP, CIR, FBU, FB2U) and
 clustered into modules using the hyper edge clustering algorithm SCHype. The resulting
 modules contain a high density of subgraphs and are further characterized with 
 the functional enrichment method GOATOOLS. Relation with regulators and other
-moduels were derived in a superview step summarizing interaction shared between modules and 
+modules were derived in a superview step summarizing interaction shared between modules and 
 regulators pointing at them. 
 
 
@@ -18,10 +18,10 @@ regulators pointing at them.
 ![**Example directed acyclic graph (DAG) for pipeline run with 3 cores**](figures/dag_example_tree_cores.svg "Example DAG for pipeline run with 3 cores")
 
 
-## How to run SUBATOMIC: A human mini-net example
+## How to run SUBATOMIC: Toy example
 Calculating modules for the integrated network published in the paper takes a lot
 of compute power and space. We therefore sampled down the inital network to create 
-a mini-net for *H. sapiens* that can be used as a test example. 
+a smaller toy example for *H. sapiens* that can be used as a test example. 
 
 ### Dependencies
 Make sure all dependencies are installed and ready to use. The version number of
@@ -43,7 +43,7 @@ work with slightly different versions.
 ### Installation and start
 Clone the repository and adapt the config file.  
 The pipeline can be started calling:  
-```snakemake -s Integrated_Pipeline --configfile config_test_hsapiens_miniNet.yaml --cores 3```
+```snakemake -s Integrated_Pipeline --configfile config_test_hsapiens_toyNet.yaml --cores 3```
 
 ### Required and optional input files
 Shows an overview of the files required for the analysis. Except for go-basic.obo, all file names can be freely chosen but have to be set in the config file. In this list, all files are contained in the example folder. 
@@ -52,11 +52,12 @@ Shows an overview of the files required for the analysis. Except for go-basic.ob
 
 - Required for functional enrichment with GOATOOLS  
 - Located in the base folder next to 'Integrated_Pipeline'
-- Can be obtained from [GENEONTOLOGY](http://geneontology.org/docs/download-ontology/)
-2. ```goa_human.gaf```  
+- Latest version can be obtained from [GENEONTOLOGY](http://geneontology.org/docs/download-ontology/)
+2. ```Hsapiens_goa_ensembl.gaf```  
 
 - Required for functional enrichment with GOATOOLS  
-- Can be obtained from [GENEONTOLOGY_annotations](http://geneontology.org/docs/download-go-annotations/)
+- Latest version can be obtained from [GENEONTOLOGY_annotations](http://geneontology.org/docs/download-go-annotations/)
+- Need to match the identifiers of the input network. For the toy example, we already mapped to the correct namespace.
 
 3. ```Hsapens_subgraphs.csv```  
 
@@ -64,7 +65,7 @@ Shows an overview of the files required for the analysis. Except for go-basic.ob
 - Due to symmetric reasons, some subgraphs can be redundant. From a set of equivalent subgraphs, only one should be kept
 - List can be self defined or generated using the utility script generate_motif_list.py that gives a non-redundant list of motifs given the network letters
 
-4. ```Hsapiens_miniNet.csv```  
+4. ```Hsapiens_goa_ensembl.gaf```  
 
 - File containing all edges from the integrated prior network
 - No header, content:
@@ -73,33 +74,33 @@ Shows an overview of the files required for the analysis. Except for go-basic.ob
   - Third column contains the letter representing the network to which this interaction belongs
 - Networks can only contain **either** directed **or** undirected edges, but no mix of both
 
-5. ```Human_All_Genes.csv```
+5. ```Hsapiens_background_genes_ensembl.csv```
 
 - Optional, no header, plane list of identifier used as background for functional enrichment analysis
 - In this example, a large number of protein coding genes in *H. sapiens*
 
-6. ```Human_functional_description.csv```
+6. ```Hsapiens_functional_description.csv```
 
-- File containing a mapping of identifer to gene name as well as a optional short description of the gene function
+- File containing a mapping of identifier to gene name as well as a optional short description of the gene function
 - Header, content:
   - First column: Primary identifier, which are also used in the interaction file
   - Second column: External gene name
   - Third column: Potential alternative identifier or gene name
   - Fourth column: functional description
 
-7. ```Human_miRNAS.csv```
+7. ```Hsapiens_miRNAs.csv```
 
 - Plane file containing the identifier of all miRNAs
 - Will be used in the superview
 
-8. ```Human_TFs.csv```
+8. ```Hsapiens_TFs.csv```
 
 - Plane file containing the identifier of all regulators
 - Will be used in the superview
 
 ### Configuration file
  
-Check the config file ```config_test_hsapiens_miniNet.yaml```.  
+Check the config file ```config_test_hsapiens_toyNet.yaml```.  
 For the toy example, settings are already done.  
 
 - Set all path variables:  
@@ -127,16 +128,16 @@ For the toy example, settings are already done.
     - "network": all interactions of a network type
     - "module": all interactions of a network type as well as the module e.g. CIR_H
     
-### Running an example analysis for a human miniNet
+### Running an example analysis for the toy net
 Even though the prior network published in the paper is far from complete, calculation takes a significant amount of time.
-For testing purposes we created a smaller network (miniNet). We selected up to k modules from the SUBATOMIC run  based on the full network and 
-re-created an interaction file containing only genes involved in this modules (for k=10, 20 and 100). This miniNets can then be used to 
-test the pipeline using only a  small amount of time. However, we also provide the ```Human_Interation_File.csv``` containing the network used in the publication.  
+For testing purposes we created a smaller network (toy_Net). We selected up to k modules from the SUBATOMIC run  based on the full network and 
+re-created an interaction file containing only genes involved in this modules (for k=5). This toy net can then be used to 
+test the pipeline using only a  small amount of time. However, we also provide the ```Hsapiens_interaction_file.csv``` containing the network used in the publication. **Important:** The implementation of GOATOOLS is very greedy for space, thus when annotating even a few modules with 3 cores as done in this exaple,  the RAM demand can go > 32 GB. 
 1. Clone the repository 
 2. Go to the base folder and unzip the go-basic.obo file with  
 ```tar -xzf go-basic.obo.tar.gz``` 
 3. Go to example_data/Hsapiens_M1/ and unzip the GAF file with
-```tar -xzf goa_human.gaf.tar.gz```
+```tar -xzf Hsapiens_goa_ensembl.gaf.tar.gz```
 4. Adapt the config file. For this example, all parameters are set and the example is run on 3 cores
 5. Go to the SUBATOMIC folder and run
 ```snakemake -s Integrated_Pipeline --configfile config_test_hsapiens_miniNet.yaml --cores 3```
