@@ -1,0 +1,8 @@
+Module	Comments	nrTF	nrGO	nrInCluster
+FBU_0	-	1	0	8
+FBU_1	-	4	0	5
+FBU_2	-	7	0	12
+FBU_3	-	7	0	9
+FBU_4	-	4	0	4
+FBU_5	-	4	0	5
+FBU_6	-	3	0	3

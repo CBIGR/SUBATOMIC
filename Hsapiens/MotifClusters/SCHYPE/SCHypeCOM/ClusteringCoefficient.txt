@@ -1,0 +1,15 @@
+COM_0.txt 1
+COM_1.txt 1
+COM_10.txt 1
+COM_11.txt 1
+COM_12.txt 0.75
+COM_13.txt 0.75
+COM_14.txt 1
+COM_2.txt 1
+COM_3.txt 1
+COM_4.txt 1
+COM_5.txt 0.684210526315789
+COM_6.txt 0.75
+COM_7.txt 1
+COM_8.txt 0.75
+COM_9.txt 0.75

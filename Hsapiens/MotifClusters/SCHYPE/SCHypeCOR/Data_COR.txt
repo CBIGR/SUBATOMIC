@@ -1,0 +1,14 @@
+Module	Comments	nrTF	nrGO	nrInCluster
+COR_0	-	1	0	5
+COR_1	-	1	0	6
+COR_10	-	3	0	3
+COR_11	-	3	0	3
+COR_12	-	2	0	3
+COR_2	-	3	0	6
+COR_3	-	0	0	4
+COR_4	-	1	0	8
+COR_5	-	3	0	5
+COR_6	-	4	0	5
+COR_7	-	4	0	5
+COR_8	-	5	0	5
+COR_9	-	3	0	4

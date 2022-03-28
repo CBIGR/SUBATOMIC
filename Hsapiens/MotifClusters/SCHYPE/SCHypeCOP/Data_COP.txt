@@ -1,0 +1,12 @@
+Module	Comments	nrTF	nrGO	nrInCluster
+COP_0	-	3	0	7
+COP_1	-	3	0	6
+COP_10	-	3	0	3
+COP_2	-	3	0	4
+COP_3	-	2	0	5
+COP_4	-	2	0	7
+COP_5	-	1	0	4
+COP_6	-	4	0	4
+COP_7	-	4	0	5
+COP_8	-	3	0	3
+COP_9	-	3	0	3

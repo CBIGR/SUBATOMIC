@@ -1,0 +1,1 @@
+COM_5	hsa-let-7f-5p	|hsa-let-7e-5p	|hsa-let-7a-5p	|hsa-let-7b-5p	|hsa-let-7c-5p	|hsa-let-7g-5p	|hsa-let-7i-5p	

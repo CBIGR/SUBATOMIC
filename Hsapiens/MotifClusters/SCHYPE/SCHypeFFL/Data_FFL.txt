@@ -1,0 +1,12 @@
+Module	Comments	nrTF	nrGO	nrInCluster
+FFL_0	-	3	0	3
+FFL_1	-	4	0	5
+FFL_10	-	3	0	3
+FFL_2	-	5	0	9
+FFL_3	-	5	0	7
+FFL_4	-	4	0	8
+FFL_5	-	3	0	3
+FFL_6	-	3	0	3
+FFL_7	-	3	0	5
+FFL_8	-	2	0	5
+FFL_9	-	1	0	3
