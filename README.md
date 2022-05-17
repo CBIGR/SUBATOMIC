@@ -1,7 +1,7 @@
 # SUBATOMIC:	SUbgraph BAsed mulTi-OMIcs Clustering
 The subgraph based multi-omics clustering (SUBATOMIC) framework is a methodology to integrate, cluster and annotate networks into functional modules.
-Interaction networks can be of any interaction type and contain directed or directed edges such as transcription factor-target networks, miRNA-target networks or protein-protein interaction networks as long as they have a common set of shared nodes. 
-SUBATOMIC first integrates all networks into one prior network and decomposes it into two- and three-node subgraphs using ISMAGS. The resulting subgraphs are further categorized according to their type (ALL, COM, COR, COP, CIR, FBU, FB2U) and clustered into modules using the hyperedge clustering algorithm SCHype. The resulting modules contain a high density of subgraphs and are further characterized with the functional enrichment method GOATOOLS. Connections in between modules as well as between modules and regulators are statistically investigated to preserve the larger network context. Static modules can be further integrated with condition-specific expression data to study dynamic modules.
+Interaction networks can be of any interaction type and contain directed or directed edges such as transcription factor (TF)-target networks, miRNA-target networks or protein-protein interaction networks as long as they have a common set of shared nodes. 
+SUBATOMIC first integrates all networks into one multi-edge network and decomposes it into two- and three-node subgraphs using ISMAGS. The resulting subgraphs are further categorized according to their type (ALL, COM, COR, COP, CIR, FBU, FB2U) and clustered into modules using the hyperedge clustering algorithm SCHype. The resulting modules contain a high density of subgraphs and are further characterized with the functional enrichment method GOATOOLS. Connections in between modules as well as between modules and regulators are statistically investigated in the superview analysis to preserve the larger network context. Static modules can be further integrated with condition-specific expression data to study dynamic modules.
 
 
 ![**Example directed acyclic graph (DAG) for pipeline run with 3 cores**](figures/dag_example_tree_cores.svg "Example DAG for pipeline run with 3 cores")
@@ -54,9 +54,9 @@ Shows an overview of the files required for the analysis. Except for go-basic.ob
 
 4. ```Hsapiens_goa_ensembl.gaf```  
 
-- File containing all edges from the integrated prior network
+- File containing all edges from the integrated multi-edge network
 - No header, content:
-  - First column contains node_1 (in case of directed interactions - the regulators)
+  - First column contains node_1 (in case of directed interactions - the regulatory factors)
   - Second column contains node_2 (in case of directed interactions - the targets)
   - Third column contains the letter representing the network to which this interaction belongs
 - Networks can only contain **either** directed **or** undirected edges, but no mix of both
@@ -94,7 +94,7 @@ For the toy example, settings are already done.
   - **interaction**: *string*,  path + filename to interaction file
   - **subgraph_type**: *string*, path + filename to file containing all subgraphs to be investigated
   - **Functional_Description**: *string*: path + filename to functional description file
-  - **Transcription_Factors**: *string*,  path + filename to list of TF
+  - **Transcription_Factors**: *string*,  path + filename to list of transcription factors
   - **GO_ASSOCIATIONS**: *string*, path + filename to GO annotation file
   - **scripts**: *string*, path to script folder
   - **output_folder_name**: *string*, any name for an analysis run
@@ -112,11 +112,11 @@ For the toy example, settings are already done.
       - "ModuleType": all genes of a module type e.g. all genes contained in all CIR modules
       - "ALL": all genes in the input network
   - **superview_background**: *string*, choice that should be taken as background distribution for the suberview z-score calculation. Two options are available:
-    - "network": all interactions of a network type e.g. H -- RECOMMENDED 
-    - "module": all interactions of a network type within a specific type of module e.g. H in CIR 
+    - "network": all interactions of a specific interaction type e.g. H -- RECOMMENDED 
+    - "module": all interactions of a specific interaction type within a specific type of module e.g. H in CIR 
     
 ### Running the toy example 
-Even though the prior network published in the paper is far from complete, calculation takes a significant amount of time.
+Even though the multi-edge network published in the paper is far from complete, calculation takes a significant amount of time.
 For testing purposes we created a smaller network (toy_Net). We selected up to k modules from the SUBATOMIC run  based on the full network and 
 re-created an interaction file containing only genes involved in this modules (for k=5). This toy net can then be used to 
 test the pipeline using only a  small amount of time. However, we also provide the ```Hsapiens_interaction_file.csv``` containing the network used in the publication. **Important:** The implementation of GOATOOLS is very greedy for space, thus when annotating even a few modules with 3 cores as done in this example,  the RAM demand can go > 32 GB. 
@@ -225,7 +225,7 @@ A more detailed list of all files can be found here:
 6. ```Interactions```
 
 - Folder
-- Contains a file for each network type:  ```{output_folder_name}_{network letter}_{d|u}.txt```
+- Contains a file for each interaction type:  ```{output_folder_name}_{network letter}_{d|u}.txt```
 - Formatted network files used as input for ISMAGS subgraph search
 
 7. ```MotifClusters```
@@ -242,7 +242,7 @@ A more detailed list of all files can be found here:
   -  ```cluster.eda```
   - Assigns each interaction to a cluster
   - Columns
-    - First node (e.g. TF)
+    - First node (e.g. transcription factor)
     - Type of interaction (e.g. R)
     - Second node (e.g. target gene)
     - Assigned cluster
@@ -256,7 +256,7 @@ A more detailed list of all files can be found here:
   - Columns
     - **Module**: name of the module
     - **Comments**: annotated comments if they exist
-    - **nrTF**: number of TFs in the module
+    - **nrTF**: number of transcription factors in the module
     - **nrGO**: number of GO annotated terms in the module
     - **nrInCluster**: number of genes in the cluster
   - ```edges.nnf```
@@ -273,7 +273,7 @@ A more detailed list of all files can be found here:
   Columns
     - **Accession_Number**: Gene ID
     - **FuncName**: Name of the gene
-    - **Type**: TF, miRNA or gene
+    - **Type**: transcription factor, miRNA or gene
     - **TF_type**: family or type of transcription factor
     - **Has_GO**: information whether the gene is annotated with GO-terms
     
@@ -338,34 +338,34 @@ A more detailed list of all files can be found here:
     - **module2_size**: module size of second module in comparison  
     - **{Network_letter}_count**: number of interactions between modules originating from a certain network
     - **{Network_letter}_z-score**: z-score against a comparison of 1000 random modules of the same size 
-    - **{Network_letter}_pvalue**: 1-CDF of z-score
+    - **{Network_letter}_pvalue**: 1 - CDF of z-score
   - ```miRNA.csv and RF.csv```
   - Summary file of interactions between each regulator and target module
   - Columns
-    - **Group**: either miRNA or RF (Regulatory Factor e.g. transcription factor)
+    - **Group**: either miRNA or transcription factor (RF = Regulatory Factor)
     - **regulator_name**: identifier of regulator
     - **module2**: module type of  module in comparison
     - **module2_nr**: module number of  module in comparison
     - **module1_size**: module size of  module in comparison
-    - **{Network_letter}_count**: number of interactions between RF and module originating from a certain network
+    - **{Network_letter}_count**: number of interactions between regulator and module originating from a certain network
     - **{Network_letter}_fraction**: fraction of nodes in the module targeted by a regulator of from a certain network
-    - **SumCount**: all counts over all network types
+    - **SumCount**: all counts over all interaction types
     - **fraction**: fraction of nodes in the module targeted by a regulator     
   - ```Module_RF_stats.csv```
   - Overview per module to summarize how many regulators target this module
   - Columns
     - **Module**: module name
-    - **count_RF**: count how many TF target a module
-    - **total_RF**: count how many TF were included in the prior network
-    - **percentage_RF**: percentage how many RF are targeting a module
+    - **count_RF**: count how many transcription factors target a module
+    - **total_RF**: count how many transcription factors were included in the multi-edge network
+    - **percentage_RF**: percentage how many transcription factors are targeting a module
     - **count_miRNA**: count how many miRNA target a module
-    - **total_miRNA**: count how many miRNA were included in the prior network
-    - **percentage_miRNA**: percentage how many RF are targeting a module
+    - **total_miRNA**: count how many miRNA were included in the multi-edge network
+    - **percentage_miRNA**: percentage how many miRNA are targeting a module
   - ```TF_miRNA_target_stats.csv```
-  - Overview per module to summarize how many modules are targeted by a specific regulator
+  - Overview per module to summarize how many modules are targeted by a specific transcription factor or miRNA
   - Columns
     - **RF**: ID of the regulator
-    - **type**: type of regulator, either TF or miRNA
+    - **type**: type of regulator, either transcription factor or miRNA
     - **count**: number of targeted modules
     - **total**: total number of modules
     - **percentage**: percentage of modules covered compared to the total number of modules      
@@ -382,19 +382,19 @@ separately.
   - ```-meta```: set path and name of file containing meta data for ECD scores
   - ```-clusters```: set path to the SCHYPE output folder (containing SCHypeALL, SCHypeCIR etc.)
   - ```-out```: set path were to store the results
-  - ```-nPCC```: Flag that enables nPCC calculation. No argument needed
-  - ```-ECD```: Flag that enables ECD calculation. No argument needed
-  - ```-activity```: Flag that enables module activity calculation. No argument needed  
+  - ```-nPCC```: Flag that enables nPCC calculation -no argument needed
+  - ```-ECD```: Flag that enables ECD calculation - no argument needed
+  - ```-activity```: Flag that enables module activity calculation -no argument needed  
   - ```-sampling_k```: Integer value indicating the iterations for random sampling
   
 - Input files
   - ```expression file```
-    - Contains the expression data on which the script should be run
+    - Contains the expression data 
     - Columns: samples
     - Rows: genes
     - Separator: tab
   - ```p-value file```
-    - Contains p-values per gene in the expression file. Missing p-values are considered as 1
+    - Contains p-values per gene in the expression file - missing p-values are set at 1
     - Header: True
     - First column: gene identifier 
     - Second column: p-value
@@ -404,16 +404,16 @@ separately.
     - Contains meta information about the experiment 
     - Header: True
     - First column: Sample header in the expression file
-    - Second column: Experiment identifier if multiple experiments should be tested. Each experiment is processed individually
-    - Third column: Names or identifier of different experimental conditions. Needs to include control conditions. At least three control and three condition samples need to be provided
-    - Fifth column: A 0 or 1 indicator to mark control conditions (with a 1)
+    - Second column: Experiment identifier if multiple experiments are tested - each experiment is processed individually
+    - Third column: Names or identifier of different experimental conditions. Needs to include control conditions. At least three control and three condition samples need to be provided.
+    - Fifth column: A 0 or 1 indicator to mark experimental conditions - control conditions are marked with 1
 - Output files
   - ```ECD.csv```
     - **module**: name of module
     - **experiment**: number of experiment
     - **condition**: name of condition
     - **length_module**: number of nodes in the module
-    - **mean_dPCC**: mean differential Pearson correlation in the module between control and conditions
+    - **mean_dPCC**: mean differential Pearson correlation in the module between control and experimental conditions
 - Required flags per analyses
   - Calculate ECD score
     - ```-clusters```
