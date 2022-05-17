@@ -3,7 +3,7 @@ The subgraph based multi-omics clustering (SUBATOMIC) framework is a methodology
 Interaction networks can be of any interaction type and contain directed or directed edges such as transcription factor (TF)-target networks, miRNA-target networks or protein-protein interaction networks as long as they have a common set of shared nodes. 
 SUBATOMIC first integrates all networks into one multi-edge network and decomposes it into two- and three-node subgraphs using ISMAGS. The resulting subgraphs are further categorized according to their type (ALL, COM, COR, COP, CIR, FBU, FB2U) and clustered into modules using the hyperedge clustering algorithm SCHype. The resulting modules contain a high density of subgraphs and are further characterized with the functional enrichment method GOATOOLS. Connections in between modules as well as between modules and regulators are statistically investigated in the superview analysis to preserve the larger network context. Static modules can be further integrated with condition-specific expression data to study dynamic modules.
 
-**Here you can find the Snakemake pipeline.
+**Here you can find the Snakemake pipeline.  
 A Docker version of the SUBATOMIC pipeline is available: https://hub.docker.com/repository/docker/cbigr/subatomic**
 
 
