@@ -1,31 +1,18 @@
 # SUBATOMIC:	SUbgraph BAsed mulTi-OMIcs Clustering
-The subgraph based multi-omics clustering (SUBATOMIC) pipeline is a module inference
-and annotation framework to integrate and cluster networks into functional modules.
-Interaction networks can be of any interaction type and contain directed or directed
-edges such as TF-target networks, miRNA-target networks or protein-protein interaction
-networks as long as they have a common set of shared nodes. 
-SUBATOMIC  first integrates all networks into one prior network and decomposes it into 
-two- and three-node subgraphs using ISMAGS. The resulting subgraphs are further 
-categorized according to their type (ALL, COM, COR, COP, CIR, FBU, FB2U) and
-clustered into modules using the hyper edge clustering algorithm SCHype. The resulting
-modules contain a high density of subgraphs and are further characterized with 
-the functional enrichment method GOATOOLS. Relation with regulators and other
-modules were derived in a superview step summarizing interaction shared between modules and 
-regulators pointing at them. 
-
+The subgraph based multi-omics clustering (SUBATOMIC) framework is a methodology to integrate, cluster and annotate networks into functional modules.
+Interaction networks can be of any interaction type and contain directed or directed edges such as transcription factor-target networks, miRNA-target networks or protein-protein interaction networks as long as they have a common set of shared nodes. 
+SUBATOMIC first integrates all networks into one prior network and decomposes it into two- and three-node subgraphs using ISMAGS. The resulting subgraphs are further categorized according to their type (ALL, COM, COR, COP, CIR, FBU, FB2U) and clustered into modules using the hyperedge clustering algorithm SCHype. The resulting modules contain a high density of subgraphs and are further characterized with the functional enrichment method GOATOOLS. Connections in between modules as well as between modules and regulators are statistically investigated to preserve the larger network context. Static modules can be further integrated with condition-specific expression data to study dynamic modules.
 
 
 ![**Example directed acyclic graph (DAG) for pipeline run with 3 cores**](figures/dag_example_tree_cores.svg "Example DAG for pipeline run with 3 cores")
 
 
 ## How to run SUBATOMIC: Toy example
-Calculating modules for the integrated network published in the paper takes a lot
-of compute power and space. We therefore sampled down the inital network to create 
-a smaller toy example for *H. sapiens* that can be used as a test example. 
+We created a small toy example for *H. sapiens* that can computationally be run more efficiently.
 
 ### Dependencies
 Make sure all dependencies are installed and ready to use. The version number of
-python packages should be seen as recommendation, since the pipeline might also 
+python packages should be seen as recommendations, since the pipeline might also 
 work with slightly different versions.  
 
 - Python >3.6  
@@ -46,7 +33,7 @@ The pipeline can be started calling:
 ```snakemake -s Integrated_Pipeline --configfile config_test_hsapiens_toyNet.yaml --cores 3```
 
 ### Required and optional input files
-Shows an overview of the files required for the analysis. Except for go-basic.obo, all file names can be freely chosen but have to be set in the config file. In this list, all files are contained in the example folder. 
+Shows an overview of the files required for the analysis. Except for go-basic.obo, all file names can be freely chosen but have to be set in the config file. All files listed below are contained in the example folder. 
 
 1. ```go-basic.obo```  
 
@@ -57,7 +44,7 @@ Shows an overview of the files required for the analysis. Except for go-basic.ob
 
 - Required for functional enrichment with GOATOOLS  
 - Latest version can be obtained from [GENEONTOLOGY_annotations](http://geneontology.org/docs/download-go-annotations/)
-- Need to match the identifiers of the input network. For the toy example, we already mapped to the correct namespace.
+- Need to match the identifiers of the input network (already done for the toy example)
 
 3. ```Hsapens_subgraphs.csv```  
 
@@ -69,34 +56,34 @@ Shows an overview of the files required for the analysis. Except for go-basic.ob
 
 - File containing all edges from the integrated prior network
 - No header, content:
-  - First column contains node_1 (in case of directed interactions the regulators)
-  - Second column contains node_2 (in case of directed interactions the targets)
+  - First column contains node_1 (in case of directed interactions - the regulators)
+  - Second column contains node_2 (in case of directed interactions - the targets)
   - Third column contains the letter representing the network to which this interaction belongs
 - Networks can only contain **either** directed **or** undirected edges, but no mix of both
 
 5. ```Hsapiens_background_genes_ensembl.csv```
 
 - Optional, no header, plane list of identifier used as background for functional enrichment analysis
-- In this example, a large number of protein coding genes in *H. sapiens*
+- Here: a large number of protein coding genes in *H. sapiens*
 
 6. ```Hsapiens_functional_description.csv```
 
-- File containing a mapping of identifier to gene name as well as a optional short description of the gene function
+- File containing a mapping of identifiers to gene names as well as an optional short description of the gene function
 - Header, content:
-  - First column: Primary identifier, which are also used in the interaction file
+  - First column: Primary identifier, which is also used in the interaction file
   - Second column: External gene name
   - Third column: Potential alternative identifier or gene name
-  - Fourth column: functional description
+  - Fourth column: Functional description
 
 7. ```Hsapiens_miRNAs.csv```
 
-- Plane file containing the identifier of all miRNAs
-- Will be used in the superview
+- Plane file containing the identifiers of all miRNAs
+- Used in the superview analysis
 
 8. ```Hsapiens_TFs.csv```
 
-- Plane file containing the identifier of all regulators
-- Will be used in the superview
+- Plane file containing the identifiers of all transcription factors
+- Used in the superview analysis
 
 ### Configuration file
  
@@ -111,28 +98,28 @@ For the toy example, settings are already done.
   - **GO_ASSOCIATIONS**: *string*, path + filename to GO annotation file
   - **scripts**: *string*, path to script folder
   - **output_folder_name**: *string*, any name for an analysis run
-  - **directed_interactions**, *list*, letters indicating networks containing exclusively  directed_interactions
-  - **undirected_interactions**, *list*, letters indicating networks containing exclusively  undirected_interactions
+  - **directed_interactions**, *list*, letters indicating networks containing exclusively directed_interactions
+  - **undirected_interactions**, *list*, letters indicating networks containing exclusively undirected_interactions
   - **miRNA_interactions**: *list*, letters indicating the network containing miRNA-target interactions
   - **homolog_interactions**: *list*, letters indicating networks containing undirected homologous interactions  
-  - **modules**: *list*, choice from "ALL", "COR", "COP", "CIR", "FBU", "FB2U" and "FFL". Specifies the modules included in the analysis
-  - **schype_edge_weigt**: *int*, weight parameter for SCHYPE. Higher values than 1 give more emphasis to the edges in the node-to-edge ratio
+  - **modules**: *list*, choice from "ALL", "COR", "COP", "CIR", "FBU", "FB2U" and "FFL" - specifies the modules included in the analysis
+  - **schype_edge_weigt**: *int*, weight parameter for SCHYPE - higher values than 1 give more emphasis to the edges in the node-to-edge ratio
   - **goatools_pvalue**: *float*, threshold p-value for gene enrichment analysis
-  -  **call_R**: *string*, command how to call R from the command line. In the easiest case, R
+  -  **call_R**: *string*, command how to call R from the command line (e.g. R)
   -  **cores**: *int*, number of cores used for the parallelization of superview. Careful: cores have to be submitted again calling snakemake with --cores. The number of cores specified here needs to be <= the number of --cores.
-  - **annotation_background**: *string*, choice what should be taken as background for the functional enrichment analysis. Three options are available:
-      - Path + name to a list with gene identifier that will serve as background
-      - "ModuleType": All genes of a module type, e.g. all genes contained in a CIR module for CIR
-      - "ALL": All genes in the input network
-  - **superview_background**: *string*, choice what should be taken as background distribution for the suberview z-score calculation
-    - "network": all interactions of a network type
-    - "module": all interactions of a network type as well as the module e.g. CIR_H
+  - **annotation_background**: *string*, choice that should be taken as background for the functional enrichment analysis. Three options are available:
+      - path + name to a list of gene identifiers that will serve as background
+      - "ModuleType": all genes of a module type e.g. all genes contained in all CIR modules
+      - "ALL": all genes in the input network
+  - **superview_background**: *string*, choice that should be taken as background distribution for the suberview z-score calculation. Two options are available:
+    - "network": all interactions of a network type e.g. H -- RECOMMENDED 
+    - "module": all interactions of a network type within a specific type of module e.g. H in CIR 
     
-### Running an example analysis for the toy net
+### Running the toy example 
 Even though the prior network published in the paper is far from complete, calculation takes a significant amount of time.
 For testing purposes we created a smaller network (toy_Net). We selected up to k modules from the SUBATOMIC run  based on the full network and 
 re-created an interaction file containing only genes involved in this modules (for k=5). This toy net can then be used to 
-test the pipeline using only a  small amount of time. However, we also provide the ```Hsapiens_interaction_file.csv``` containing the network used in the publication. **Important:** The implementation of GOATOOLS is very greedy for space, thus when annotating even a few modules with 3 cores as done in this exaple,  the RAM demand can go > 32 GB. 
+test the pipeline using only a  small amount of time. However, we also provide the ```Hsapiens_interaction_file.csv``` containing the network used in the publication. **Important:** The implementation of GOATOOLS is very greedy for space, thus when annotating even a few modules with 3 cores as done in this example,  the RAM demand can go > 32 GB. 
 1. Clone the repository 
 2. Go to the base folder and unzip the go-basic.obo file with  
 ```tar -xzf go-basic.obo.tar.gz``` 
@@ -149,34 +136,32 @@ file in the run folder as well as the hidden .snakemake folder
  - A list and short description of the most important output files can be found
  in the following section 
 
-7. Visualize them with Cytoscpae
+7. Visualization with Cytoscpae
 
 - Start Cytoscape
 - Open the folder ```/data/human_network/final_networks/Hsapiens/MotifClusters/SCHYPE/SCHype*/```
 - The network is contained in the ```edges.nnf file```. Open this file  in Cytoscape (e.g. drag and drop it to the network file area)
 - The annotation for this network is included in ```NodeAttributes.noa```.  Open this file  in Cytoscape (e.g. drag and drop it to the table files section)
-- The Cytoscape style is included in the folder ```Cytoscape``` and called ```cytoscape_style.xml```. Import the style sheet by opening the ```File``` tab, ```Import``` and ```Styles from File```. This has to be done only once for each combination of directed and un-directed network letters.
-- Select all networks, right-click on ```Apply Style``` and select the imported style.  Under the tab Style and Labels, it is possible to change the IDs to gene names. 
-- Hint: Cytoscape sometimes introduce an error while importing by renaming all listed modules two indices higher (e.g. COR_2 instead of COR_0). In the node table view however, the correct naming is shown. Moreover it is  recommended to only load smaller selections of modules at a time to not overload Cytoscape.
+- The Cytoscape style is included in the folder ```Cytoscape``` and called ```cytoscape_style.xml```. Import the style sheet by opening the ```File``` tab, ```Import``` and ```Styles from File```. This has to be done only once for each combination of directed and undirected network letters.
+- Select all networks, right-click on ```Apply Style``` and select the imported style. Under the tab Style and Labels, it is possible to change the IDs to gene names. 
+- Hint: Cytoscape sometimes introduces errors while importing by renaming all listed modules two indices higher (e.g. COR_2 instead of COR_0). In the node table view however, the correct naming is shown. Moreover it is  recommended to only load smaller selections of modules at a time to not overload Cytoscape.
 
 8. Contextualization
 
-- It is possible to contextualize the data with the hypoxia dataset generated 
+- It is possible to contextualize the data with the hypoxia dataset 
 - For visualization of module expression, open the R script ```VisualizeHypoxia.R```
 in the ```utility_scripts``` folder and adapt the working directory in line 11 to the location of the SUBATOMIC repository
 - The path to input and output files should be set already for running the hypoxia data visualization as described in the paper
 - Visualizations are saved at the location ```Hsapiens/contextualization_hypoxia/```
 - Next, one can use the ```calculate_contextualization_scores.py``` script to calculate nPCC, ECD and activity scores
-- The calculation of ECD scores for hypoxia does not give satisfying results (to less samples) but is included exemplarily in the call 
 - To calculate values for this example, go to the SUBATOMIC folder and call: 
 ```python utility_scripts/calculate_contextualization_scores.py -expression example_data/hypoxia/GSE53012_expression.tsv -out Hsapiens/contextualization_scores/ -activity -ECD -nPCC -clusters Hsapiens/SCHYPE/ -sampling_k 20 -pvalues example_data/hypoxia/hypoxia_p-values_PC_3_mapped.csv -meta example_data/hypoxia/hypoxia_ECD_meta.csv```
 
 
 ### Important output files
 All results are stored in the designated output folder specified in the description. 
-In the following, we describe the content of all folders. However, most files are not
-relevant for analysis and interpretation. We therefore first provide a list of most 
-important result files that come handy while investigating the generated modules:
+In the following, we describe the content of all folders. However, most files are intermediate files. We therefore provide a list of the most 
+important result files that come handy while exploring in depth the generated modules:
 
 - ```Cytoscape/cytoscape_style.xml```
 - ```GOATOOLS/Enrichment_Modules.csv```
@@ -206,15 +191,15 @@ A more detailed list of all files can be found here:
 2. ```3nodemotifs```  
 
 - Folder
-- Contains the preprocessed output of ISMAGS for each Motif that was serached for
+- Contains the preprocessed output of ISMAGS for each motif that was searched for
 - First line indicates number of motifs found
 
 3. ```Cytoscape```
 
 - Folder
-- Contains the 'cytoscape_style.xml', which is an importable style in cytoscape
+- Contains the 'cytoscape_style.xml', which is an importable style in Cytoscape
 - File is created based on the set of undirected and directed nework letters
-- Edge colors per network letter can also be changend in this file
+- Edge colors per network letter can also be changed in this file
 
 4. ```GOATOOLS```
 
@@ -223,7 +208,7 @@ A more detailed list of all files can be found here:
 - Each subfolder contains intermediate results from the parallelized functional enrichment analysis
 - Important files 
   - ```Enrichment_Modules.csv```
-  - Contains all significant functional enticements per module
+  - Contains all significant functional enrichments per module
   - Columns
     - **group**: module type
     - **module_no**: module number
@@ -241,12 +226,12 @@ A more detailed list of all files can be found here:
 
 - Folder
 - Contains a file for each network type:  ```{output_folder_name}_{network letter}_{d|u}.txt```
-- formatted network files used as input for ISMAGS subgraph search
+- Formatted network files used as input for ISMAGS subgraph search
 
 7. ```MotifClusters```
 
 - Folder
-- Subfolder ```ModuleViewer``` is not relevant for results 
+- Subfolder ```ModuleViewer``` 
 - Subfolder ```SCHYPE``` contains the clustered modules and related information split up for each module type ```SCHype{module_name}```
   - ```cluster.cla```
   - Summary information per cluster
@@ -262,7 +247,7 @@ A more detailed list of all files can be found here:
     - Second node (e.g. target gene)
     - Assigned cluster
   - ```ClusteringCoefficient.txt```
-  - Information about the clustering coefficent per module. A value of 1 indicates a fully connected graph
+  - Information about the clustering coefficient per module. A value of 1 indicates a fully connected graph.
   - Columns
     - Module name
     - Clustering coefficient
@@ -270,17 +255,17 @@ A more detailed list of all files can be found here:
   - Summarizes some more general information per cluster 
   - Columns
     - **Module**: name of the module
-    - **Comments**: Annoated comments if some exist
-    - **nrTF**: number of TF in the module
-    - **nrGO**: number of GO annotated in the module
+    - **Comments**: annotated comments if they exist
+    - **nrTF**: number of TFs in the module
+    - **nrGO**: number of GO annotated terms in the module
     - **nrInCluster**: number of genes in the cluster
   - ```edges.nnf```
-    - Network file for import info Cytoscape
+    - Network file for import into Cytoscape
   - ```edges.sif```
     - Simple interaction format showing edges and the edge type as extra information
     - Columns
       - Source node
-      - Network type were the edge originates from
+      - Interaction type 
       - Target node
   - ```NodeAttributes.noa```
   - Attribute file that can be imported into Cytoscape to annotate modules
@@ -289,7 +274,7 @@ A more detailed list of all files can be found here:
     - **Accession_Number**: Gene ID
     - **FuncName**: Name of the gene
     - **Type**: TF, miRNA or gene
-    - **TF_type**: family or type of TF
+    - **TF_type**: family or type of transcription factor
     - **Has_GO**: information whether the gene is annotated with GO-terms
     
 
@@ -306,11 +291,11 @@ A more detailed list of all files can be found here:
 - Contains the primary output of SCHYpe clustering and some intermediate files
 - Subfolder ```SCHYPE``` contains the clustered modules and related information split up for each module type ```SCHype{module_name}```
   - ```ALLEDGES.txt```
-  -  Contains all egdes and their assocaition to a cluster
+  -  Contains all egdes and their association to a module
     - Columns
-      - Number of module
+      - Number of modules
       - Source node
-      - Edge type, letter indicates network source, upper and lower case indicate edge directions
+      - Edge type, letter indicates interaction type, upper and lower case indicate edge directions
       - Target node
   - ```*.edges.txt```
   - Contain all three node motifs
@@ -320,18 +305,18 @@ A more detailed list of all files can be found here:
     - Second node
     - Third node
   - ```*.nodes.txt```
-    - List for each node to which cluster it belongs
+    - List for each node to which module it belongs
     - Columns
       - Node
       - Module number
   - ```Motifs.txt```
-    - List of subgraphs included in all moduels of a certain type
+    - List of subgraphs included in all modules of a certain type
     - Columns
       - First node
       - Second node
       - Third node
   - ```MotifsType.txt```
-    - List of motifs and their motif type
+    - List of subgraphs and their subgraph type
     - Columns
       - First node
       - Second node
@@ -357,7 +342,7 @@ A more detailed list of all files can be found here:
   - ```miRNA.csv and RF.csv```
   - Summary file of interactions between each regulator and target module
   - Columns
-    - **Group**: either miRNA or RF
+    - **Group**: either miRNA or RF (Regulatory Factor e.g. transcription factor)
     - **regulator_name**: identifier of regulator
     - **module2**: module type of  module in comparison
     - **module2_nr**: module number of  module in comparison
