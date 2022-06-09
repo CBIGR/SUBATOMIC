@@ -1,0 +1,2 @@
+Main-Class: SCHype
+Class-Path: lib/colt.jar lib/commons-cli-1.1.jar
